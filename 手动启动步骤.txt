@@ -52,6 +52,7 @@ conda env create -p ./my_env -f environment.yml
 5. 安装torch, 必须从按cuda版本11.8或12.9中二选一，因为mmcv只支持这两个版本的硬件加速
 pip install torch torchvision torchaudio xformers --extra-index-url https://download.pytorch.org/whl/cu118
 pip install torch torchvision torchaudio xformers --extra-index-url https://download.pytorch.org/whl/cu129
+pip install torch torcvison torchaudio==2.7.0+cu128 --extra-index-url https://download.pytorch.org/whl/cu128
 
 6. 模型下载源替换
 # 在main.py中顶部添加HuggingFace镜像代码
