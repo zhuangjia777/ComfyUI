@@ -24,3 +24,6 @@ web_custom_versions/
 openapi.yaml
 filtered-openapi.yaml
 uv.lock
+my_env/
+my_env_3.10.11/
+my_env_3.12.4/

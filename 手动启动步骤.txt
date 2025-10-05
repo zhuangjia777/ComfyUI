@@ -1,0 +1,77 @@
+1. 激活环境
+
+conda activate ./my_env
+2. 运行主程序
+python main.py --listen 0.0.0.0 --enable-cors-header
+
+3. 打开浏览器输入网址
+本机
+http://127.0.0.1:8188
+局域网
+http://192.168.110.2:8188
+
+
+4. 如果要后台运行
+# 创建新的screen会话
+screen -S comfyui
+
+# 在screen会话中运行程序
+激活环境
+conda activate ./my_env
+python main.py --listen 0.0.0.0 --enable-cors-header
+
+# 按Ctrl+A，然后按D键可以 detach 会话，程序会在后台继续运行
+# 重新连接会话
+screen -r comfyui
+
+# 查找并结束占用端口的进程
+# 查找占用8188端口的进程
+lsof -i :8188
+
+# 如果上面的命令没有返回结果，尝试这个
+netstat -tuln | grep 8188
+
+# 找到进程ID（PID）后，使用kill命令结束它
+kill -9 [PID]
+
+5. 局域网开放本机端口
+```bash
+sudo ufw status
+sudo ufw enable  # 如果未启用，先启用
+
+sudo ufw allow 8188/tcp
+sudo ufw reload  # 重新加载防火墙规则
+```
+
+注意
+1. 如果没有项目中没有my_env文件夹，先创建独立环境
+```cmd
+conda env create -p ./my_env -f environment.yml
+```
+
+5. 安装torch, 必须从按cuda版本11.8或12.9中二选一，因为mmcv只支持这两个版本的硬件加速
+pip install torch torchvision torchaudio xformers --extra-index-url https://download.pytorch.org/whl/cu118
+pip install torch torchvision torchaudio xformers --extra-index-url https://download.pytorch.org/whl/cu129
+
+6. 模型下载源替换
+# 在main.py中顶部添加HuggingFace镜像代码
+import requests
+from urllib.parse import urlparse
+
+original_request = requests.Session.request
+
+def patched_request(self, method, url, **kwargs):
+    parsed = urlparse(url)
+    if parsed.netloc == "huggingface.co":
+        url = url.replace("huggingface.co", "hf-mirror.com")
+    return original_request(self, method, url, **kwargs)
+
+requests.Session.request = patched_request
+
+import comfy.options
+comfy.options.enable_args_parsing()
+# ==========添加结束===========
+
+7. comfyui-copilot
+zhuangjia777@foxmail.com
+a13df43df87542dbad6f61d460452294
