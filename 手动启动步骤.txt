@@ -1,7 +1,7 @@
 1. 激活环境
 
 conda activate ./my_env
-2. 运行主程序
+2. 运行主程序，测试用8189端口，不和自启动的8188冲突
 python main.py --listen 0.0.0.0 --port 8189 --enable-cors-header
 
 3. 打开浏览器输入网址
