@@ -1,8 +1,0 @@
-name: comfyui
-channels:
-  - pytorch
-  - nvidia
-  - conda-forge
-dependencies:
-  - python=3.12.4
-  - pip

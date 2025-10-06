@@ -1,4 +1,3 @@
-# 在main.py中添加HuggingFace镜像
 import requests
 from urllib.parse import urlparse
 
@@ -14,7 +13,6 @@ requests.Session.request = patched_request
 
 import comfy.options
 comfy.options.enable_args_parsing()
-# ==========添加结束===========
 
 import os
 import importlib.util

@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/home/ck/myProjects/ComfyUI/main.py", line 11, in <module>
-    import utils.extra_config
-  File "/home/ck/myProjects/ComfyUI/utils/extra_config.py", line 2, in <module>
-    import yaml
-ModuleNotFoundError: No module named 'yaml'

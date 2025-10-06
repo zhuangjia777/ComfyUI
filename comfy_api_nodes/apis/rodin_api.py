@@ -52,3 +52,7 @@ class RodinResourceItem(BaseModel):
 
 class Rodin3DDownloadResponse(BaseModel):
     list: List[RodinResourceItem] = Field(..., description="Source List")
+
+
+
+

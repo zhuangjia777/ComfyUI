@@ -2,13 +2,13 @@
 
 conda activate ./my_env
 2. 运行主程序
-python main.py --listen 0.0.0.0 --enable-cors-header
+python main.py --listen 0.0.0.0 --port 8189 --enable-cors-header
 
 3. 打开浏览器输入网址
 本机
-http://127.0.0.1:8188
+http://127.0.0.1:8189
 局域网
-http://192.168.110.2:8188
+http://192.168.110.2:8189
 
 
 4. 如果要后台运行
@@ -18,7 +18,7 @@ screen -S comfyui
 # 在screen会话中运行程序
 激活环境
 conda activate ./my_env
-python main.py --listen 0.0.0.0 --enable-cors-header
+python main.py --listen 0.0.0.0 --port 8189 --enable-cors-header
 
 # 按Ctrl+A，然后按D键可以 detach 会话，程序会在后台继续运行
 # 重新连接会话
@@ -26,10 +26,10 @@ screen -r comfyui
 
 # 查找并结束占用端口的进程
 # 查找占用8188端口的进程
-lsof -i :8188
+lsof -i :8189
 
 # 如果上面的命令没有返回结果，尝试这个
-netstat -tuln | grep 8188
+netstat -tuln | grep 8189
 
 # 找到进程ID（PID）后，使用kill命令结束它
 kill -9 [PID]
@@ -39,20 +39,32 @@ kill -9 [PID]
 sudo ufw status
 sudo ufw enable  # 如果未启用，先启用
 
-sudo ufw allow 8188/tcp
+sudo ufw allow 8189/tcp
 sudo ufw reload  # 重新加载防火墙规则
 ```
 
 注意
 1. 如果没有项目中没有my_env文件夹，先创建独立环境
 ```cmd
-conda env create -p ./my_env -f environment.yml
+conda create -p ./my_env python=3.12.4
 ```
+2. 在custom_nodes目录中
+git clone https://github.com/MrForExample/ComfyUI-3D-Pack.git
 
-5. 安装torch, 必须从按cuda版本11.8或12.9中二选一，因为mmcv只支持这两个版本的硬件加速
-pip install torch torchvision torchaudio xformers --extra-index-url https://download.pytorch.org/whl/cu118
-pip install torch torchvision torchaudio xformers --extra-index-url https://download.pytorch.org/whl/cu129
-pip install torch torcvison torchaudio==2.7.0+cu128 --extra-index-url https://download.pytorch.org/whl/cu128
+3. cd ComfyUI-3D-Pack
+pip install -r requirements.txt
+python ./install.py
+
+4. 回到项目根目录
+pip install -r requirements.txt
+
+5. 如果torch出错，修正查找pytorch3d和torch能对应的版本:
+https://anaconda.org/pytorch3d/pytorch3d/files?page=2
+https://data.pyg.org/whl/
+兼容comfyui-3d-pack的torch版本：torch241+cuda121
+1. 安装四件套：pip install torch==2.4.1 torchvision torchaudio xformers --extra-index-url https://download.pytorch.org/whl/cu121
+2. 安装项目根目录中的pytorch3d： conda install ./pytorch3d-0.7.8-py312_cu121_pyt241.tar.bz2
+3. 安装项目根目录中的torch_scatter: pip install ./torch_scatter
 
 6. 模型下载源替换
 # 在main.py中顶部添加HuggingFace镜像代码
@@ -76,3 +88,31 @@ comfy.options.enable_args_parsing()
 7. comfyui-copilot
 zhuangjia777@foxmail.com
 a13df43df87542dbad6f61d460452294
+
+8. 修复报错comfyUI-3D-Pack
+ImportError: cannot import name '_load_state_dict_into_model' from 'diffusers.models.modeling_utils' (/home/ck/myProjects/ComfyUI-3D/my_env/lib/python3.12/site-packages/diffusers/models/modeling_utils.py)
+修复方案：
+# from diffusers.models.modeling_utils import ModelMixin, load_state_dict, _load_state_dict_into_model
+from diffusers.models.modeling_utils import ModelMixin, load_state_dict
+
+# error_msgs = _load_state_dict_into_model(model_to_load, state_dict)
+error_msgs = model_to_load.load_state_dict(state_dict, strict=False)
+
+
+10. 如果出现报错：
+# 😺dzNodes: LayerStyle -> Cannot import name 'guidedFilter' from 'cv2.ximgproc'
+A few nodes cannot works properly, while most nodes are not affected. Please REINSTALL package 'opencv-contrib-python'.
+解决方案：
+```
+pip uninstall -y opencv-python opencv-python-headless opencv-contrib-python-headless opencv-contrib-python
+pip install opencv-python opencv-python-headless opencv-contrib-python-headless
+pip install opencv-contrib-python
+```
+
+9. 如果出现报错：
+Optional node movie_editor import failed with error: No module named 'moviepy.editor'.If you don't need to use this optional node, this reminder can be ignored.​
+解决方案：修改ComfyUI_llm_party/custom_tool/moive_editor的导入
+```
+# from moviepy.editor import *
+from moviepy import VideoFileClip, AudioFileClip, ImageClip, concatenate_videoclips
+```
