@@ -1,12 +1,19 @@
+import os
 import requests
 from urllib.parse import urlparse
+
+# 在文件开头设置SSL证书文件路径
+os.environ['SSL_CERT_FILE'] = '/home/ck/myProjects/ComfyUI/my_env/lib/python3.12/site-packages/certifi/cacert.pem'
+os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
+# os.environ['GIT_HUB_ENDPOINT'] = 'https://ghfast.top/https://github.com/'
 
 original_request = requests.Session.request
 
 def patched_request(self, method, url, **kwargs):
     parsed = urlparse(url)
-    if parsed.netloc == "huggingface.co":
-        url = url.replace("huggingface.co", "hf-mirror.com")
+    # Add redirect for raw.githubusercontent.com
+    if parsed.netloc == "https://github.com":
+        url = url.replace("https://github.com", "https://ghfast.top/https://github.com")
     return original_request(self, method, url, **kwargs)
 
 requests.Session.request = patched_request
